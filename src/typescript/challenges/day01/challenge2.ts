@@ -1,6 +1,6 @@
 import { withSetup } from '../../utils/challengeSetup';
 
-const day01part2 = withSetup('01', (input) => {
+const day01part2 = withSetup<number>('01', (input) => {
   let increases = 0;
   let lastSum = undefined;
   const measurements = input.split('\n').map(parseFloat);
