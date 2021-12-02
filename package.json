@@ -4,7 +4,9 @@
   "description": "Advent of Code 2021 for funsies",
   "main": "index.js",
   "scripts": {
-    "test": "tsc && node ./ts-dist/utils/runChallenge.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "advent": "node ./ts-dist/utils/runChallenge.js",
+    "postinstall": "tsc"
   },
   "repository": {
     "type": "git",
