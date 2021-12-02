@@ -15,7 +15,7 @@
     "rust",
     "typsecript"
   ],
-  "author": "",
+  "author": "Paul Richard <heythisispaul@gmail.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/heythisispaul/advent-of-code-2021/issues"
