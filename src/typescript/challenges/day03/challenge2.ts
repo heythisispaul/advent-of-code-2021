@@ -24,6 +24,7 @@ export default (input: string) => {
     const result = direction === 'greatest'
       ? ones.length >= zeros.length ? ones : zeros
       : zeros.length <= ones.length ? zeros : ones;
+
     if (depth <= max && result.length > 1) {
       return getArrayAtPosition(result, direction, depth + 1);
     }
