@@ -1,7 +1,9 @@
 export default (input: string) => {
   const binaryValues = input.split('\n');
-  const toDecimal = (binaryArr: number[]) => parseInt(binaryArr
-    .map((value) => value.toString()).join(''), 2);
+  const toDecimal = (binaryArr: number[]) => parseInt(
+    binaryArr.map((value) => value.toString()).join(''),
+    2,
+  );
 
   const summedBits = binaryValues.reduce((accrued: number[], current) => {
     current.trim().split('').forEach((value, index) => {
