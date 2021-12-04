@@ -1,7 +1,6 @@
 type BingoValue = { value: number, called: boolean };
 type BingoRow = [BingoValue, BingoValue, BingoValue, BingoValue, BingoValue];
 type BingoBoard = [BingoRow, BingoRow, BingoRow, BingoRow, BingoRow];
-type WinningBoardState = { winningNumber: number, sumOfUncalled: number };
 
 const impurelyGetAffectedBoards = (boards: BingoBoard[], bingoNumber: number) => {
   let affectedBoards = [] as BingoBoard[];
@@ -29,7 +28,7 @@ const checkForWinner = (boards: BingoBoard[]) => boards.filter((board) => {
 
 export default (input: string) => {
   const winningBoards = new Set<string>();
-  const winningBoardStates: Record<string, WinningBoardState> = {};
+  const winningBoardStates: Record<string, number> = {};
 
   const inputLines = input.split('\n');
   const bingoNumbers = inputLines[0].split(',').map(parseFloat);
@@ -63,14 +62,12 @@ export default (input: string) => {
             total += !called ? value : 0
           ), 0);
 
-        winningBoardStates[valuesOnlyBoard] = { winningNumber: bingoNumber, sumOfUncalled };
+        winningBoardStates[valuesOnlyBoard] = bingoNumber * sumOfUncalled;
       }
     });
   }
 
   const arrayOfWinners = Array.from(winningBoards);
   const lastWinner = arrayOfWinners[arrayOfWinners.length - 1];
-  const { winningNumber, sumOfUncalled } = winningBoardStates[lastWinner];
-
-  return sumOfUncalled * winningNumber;
+  return winningBoardStates[lastWinner];
 };
