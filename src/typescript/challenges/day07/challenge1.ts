@@ -9,7 +9,7 @@ export default (input: string) => {
     .map((_, number) => occurrences
       .reduce((fuelTotal, occurs, currentNumber) => (
         fuelTotal + (Math.abs(number - currentNumber) * occurs)
-    ), 0));
+      ), 0));
 
   return Math.min(...fuelTotals);
 };
