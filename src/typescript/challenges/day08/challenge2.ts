@@ -4,58 +4,66 @@ interface SegmentMap {
   middle: string;
 }
 
-interface KnownNumeralMap {
-  oneNumeral: string;
-  fourNumeral: string;
-  eightNumeral: string;
-}
-
-const test = `be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe
-edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc
-fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg
-fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb
-aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea
-fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb
-dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe
-bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef
-egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb
-gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce`;
-
-const includesSubSegments = (smaller: string[], larger: string[]) => (
-  smaller.every((segment) => larger.includes(segment))
-);
-
-const getMiddleSegment = (one: string, four: string, segmentInputs: string[]) => {
-  const fourSplit = four.split('');
-  const sixLengths = segmentInputs.filter((segments) => segments.length === 6);
-  const numeralNine = sixLengths.find((segmentString) => {
-    const splitSegment = segmentString.split('');
-    return includesSubSegments(one.split(''), splitSegment) && includesSubSegments(fourSplit, splitSegment)
+const getMiddleAndTopLeftSegments = (one: string, four: string, segmentInputs: string[]) => {
+  const sixLengths = segmentInputs.filter((segments) => segments.trim().length === 6).join('');
+  const missingFromASixLength = new Set<string>();
+  sixLengths.split('').forEach((segment) => {
+    const isOnlyPresentTwice = (sixLengths.split(segment).length - 1) < 3;
+    if (isOnlyPresentTwice) {
+      missingFromASixLength.add(segment);
+    }
   });
-  const middle = sixLengths.find(());
+  const missingArray = Array.from(missingFromASixLength);
+  const middle = missingArray.find((segment) => !one.includes(segment) && four.includes(segment)) as string;
+  const topLeft = four.split('').find((segment) => segment !== middle && !one.includes(segment)) as string;
+
+  return { middle, topLeft };
 };
 
-const buildSegmentMap = (segmentInputs: string[]) => {
-  const segmentMap = {};
-  const { oneNumeral, fourNumeral, eightNumeral } = segmentInputs.reduce((numeralMap, segment) => {
-    const mapper: Record<string, keyof KnownNumeralMap> = { 2: 'oneNumeral', 4: 'fourNumeral', 7: 'eightNumeral' };
+const getResultNumeral = ({ rightSide, middle, topLeft }: SegmentMap) => (segmentString: string) => {
+  const segmentArrSplit = segmentString.trim().split('');
+  const hasFullRightSide = rightSide.every((segment) => segmentArrSplit.includes(segment));
+
+  switch (segmentArrSplit.length) {
+    case 2:
+      return '1';
+    case 3:
+      return '7';
+    case 4:
+      return '4';
+    case 5:
+      if (hasFullRightSide) {
+        return '3';
+      }
+      return segmentArrSplit.includes(topLeft) ? '5' : '2';
+    case 6:
+      if (hasFullRightSide) {
+        return '9';
+      }
+      return segmentArrSplit.includes(middle) ? '6' : '0';
+    default:
+      return '8';
+  }
+};
+
+const buildNumeralReducer = (segmentInputsString: string) => {
+  const segmentInputs = segmentInputsString.trim().split(' ');
+  const { 2: oneNumeral, 4: fourNumeral } = segmentInputs.reduce((numeralMap: Record<string, string>, segment) => {
     const trimmedSegment = segment.trim();
-    numeralMap[mapper[trimmedSegment.length.toString()]] = trimmedSegment;
+    numeralMap[trimmedSegment.length.toString()] = trimmedSegment;
     return numeralMap;
-  }, {} as KnownNumeralMap);
-}
+  }, {});
 
-export default (input: string) => {
-  const outputNumbersStrings = test.split('\n');
-
-  const total = outputNumbersStrings.reduce((total, numStringArr) => {
-    const rightSide: string[] = [];
-    const segmentMap: Record<string, string> = {};
-    const segmentInputs = numStringArr.split(' | ')[0].split(' ');
-    const knownBySegementNum = getKnownBySegmentLength(segmentInputs);
-  }, 0);
-
-  console.log(total);
-  
-  return outputNumbersStrings;
+  return getResultNumeral({
+    rightSide: oneNumeral.trim().split(''),
+    ...getMiddleAndTopLeftSegments(oneNumeral, fourNumeral, segmentInputs),
+  });
 };
+
+
+export default (input: string) => input.split('\n').reduce((total, numStringArr) => {
+  const [segmentInputs, segmentResults] = numStringArr.split(' | ');
+  const segmentReducer = buildNumeralReducer(segmentInputs);
+  const resultNumString = segmentResults.split(' ').map(segmentReducer).join('');
+  return total + parseFloat(resultNumString);
+}, 0);
